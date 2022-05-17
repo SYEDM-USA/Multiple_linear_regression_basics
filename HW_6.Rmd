@@ -1,0 +1,106 @@
+---
+title: "HW 6"
+author: "Jacob Haussler"
+date: "11/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+housePriceCat <- read.csv("./housePriceCat.csv")
+dat <- housePriceCat
+```
+
+
+#### 1. Fit a MLR model by regressing price on sqft and view. Write the equation of the fitted line.
+```{r}
+dat$new_view = 0
+dat$new_view[dat$view == "wood"] <-0
+dat$new_view[dat$view == "city"] <-1
+dat$new_view[dat$view == "mountain"] <-2
+```
+```{r}
+dat$dummy1 <- ifelse(dat$new_view == 1, 1,0)
+dat$dummy2 <- ifelse(dat$new_view == 2, 1,0)
+head(dat)
+```
+```{r}
+mlr.dummy <- lm(price ~ sqft + factor(view), data= dat)
+summary(mlr.dummy)
+# fitted value -  hat(price) = -710174 + 534.9 * sqft +845262.3 * View(city) + 126139.9 * View(mountain)
+# when view = wood ; hat(price) = -710174 + 534.9 * sqft
+# when view = city ; hat(price) = (-710174+845262.3) + 534.9 * sqft
+# when view = mountain ; hat(price) = (-710174+126139.9) + 534.9 * sqft
+```
+
+#### 2. Test if view has a significant impact on house price.
+```{r}
+mlr2 <- lm(price ~ sqft + factor(view), data = dat)
+summary(mlr2)
+```
+
+```{r}
+library(car)
+
+linearHypothesis(mlr2, c("factor(view)mountain = factor(view)wood", "factor(view)mountain = 0"))
+```
+
+- Based off the p-value we would reject the null hypothisis. This shows that the response variable is significantly impacted by the categorical variable. 
+
+#### 3. Test if house price differs significantly between mountain view and wood view keeping sqft constant.
+```{r}
+linearHypothesis(mlr2, c("factor(view)mountain = factor(view)wood"))
+```
+
+- Based on the p-value we would fail to reject the null hypothesis. This means that we cannot determine that view = mountain and view = wood have diffrent intercepts. 
+
+#### 4. Investigate the presence of interaction effect.
+```{r}
+mlr.interaction <- lm(price ~ sqft * factor(view), data = dat)
+summary(mlr.interaction)
+```
+
+- Here we can see that none of the interaction effects are significant.
+
+
+# Q2. [5 points] Consider housePriceCat.csv
+
+# Fit a MLR model by regressing price on waterfront only. Write the equation of the fitted line.
+```{r}
+housePriceCat <- read.csv("./housePriceCat.csv")
+dat <- housePriceCat
+mlr <- lm(price ~ waterfront, data = dat)
+summary(mlr)
+#hat(price) = 998308 + 572672*Waterfront
+```
+
+
+# Write the fitted regression line for waterfront = 0.
+```{r}
+#hat(price) = 998308
+```
+
+
+# Write the fitted regression line for waterfront = 1.
+```{r}
+# hat(price) = 998308+572672
+# hat(price) = 1570980
+```
+
+# Compute a 95% confidence interval for the mean house price with no waterfront.
+```{r}
+confint(mlr, level = 0.95)
+# Lower - 650611.7 
+# Upper - 1346005
+```
+
+# Compute a 95% confidence interval for the difference in mean house price for waterfront vs. no waterfront.
+```{r}
+# how to do this
+```
+

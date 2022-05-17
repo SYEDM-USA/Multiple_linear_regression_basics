@@ -1,0 +1,93 @@
+---
+title: "HW 6"
+author: "Jacob Haussler, Brad, Syed, Katie"
+date: "11/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+#housePriceCat <- read.csv("./housePriceCat.csv")
+housePriceCat <- read.csv("C:/Users/Brad/Desktop/Stat 4020/housePriceCat.csv")
+dat <- housePriceCat
+```
+
+
+#### 1. Fit a MLR model by regressing price on sqft and view. Write the equation of the fitted line.
+
+```{r}
+mlr.dummy <- lm(price ~ sqft + factor(view), data= dat)
+summary(mlr.dummy)
+```
+
+Regression Line: price_hat = 135088.1 + 534.9(sqft) - 719122.4(view(mountain)) - 845262.3(view(wood))
+
+#### 2. Test if view has a significant impact on house price.
+
+```{r}
+library(car)
+
+linearHypothesis(mlr.dummy, c("factor(view)mountain = factor(view)wood", "factor(view)mountain = 0"))
+```
+
+- Based off the p-value we would reject the null hypothesis. This shows that the response variable is significantly impacted by the categorical variable. 
+
+#### 3. Test if house price differs significantly between mountain view and wood view keeping sqft constant.
+```{r}
+linearHypothesis(mlr.dummy, c("factor(view)mountain = factor(view)wood"))
+```
+
+- Based on the p-value we would fail to reject the null hypothesis. This means that we cannot determine that view = mountain and view = wood have different intercepts. 
+
+#### 4. Investigate the presence of interaction effect.
+```{r}
+mlr.interaction <- lm(price ~ sqft * factor(view), data = dat)
+summary(mlr.interaction)
+```
+
+- Here we can see that none of the interaction effects are significant. This means that there is not evidence of the response being significantly impacted by the view regressor variable.
+
+# Q2. [5 points] Consider housePriceCat.csv
+
+# 1. Fit a MLR model by regressing price on waterfront only. Write the equation of the fitted line.
+```{r}
+mlr <- lm(price ~ waterfront, data = dat)
+summary(mlr)
+```
+
+Regression line: hat(price) = 998308 + 572672*Waterfront
+
+# 2. Write the fitted regression line for waterfront = 0.
+
+hat(price) = 998308 + 572672*(0)
+=
+hat(price) = 998308
+
+# 3. Write the fitted regression line for waterfront = 1.
+
+hat(price) = 998308+572672 *(1)
+hat(price) = 1570980
+
+# 4. Compute a 95% confidence interval for the mean house price with no waterfront.
+```{r}
+confint(mlr, level = 0.95)
+```
+
+Confidence Interval with no waterfront:
+Lower: 650611.7 
+Upper: 1346005
+
+# 5. Compute a 95% confidence interval for the difference in mean house price for waterfront vs. no waterfront.
+
+Confidence Interval with waterfront:
+Lower: 650611.7 - 264692.8 = 385918.9
+Upper: 1346005 + 1410036 = 2756041
+
+Difference between with and without waterfront:
+Lower: abs(650611.7 - 385918.9) = 264692.8
+Upper: abs(1346005 - 2756041) = 1410036
